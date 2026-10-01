@@ -1,0 +1,145 @@
+{
+ "lang": "en",
+ "repo": "..",
+ "pageTitle": "Walkthrough Builder",
+ "eyebrow": "code-walkthrough · example",
+ "title": "How build.py turns a spec into this page",
+ "subtitle": "The example spec this repository ships with: the skill explaining itself. Run it with `python3 skills/code-walkthrough/scripts/build.py examples/self-walkthrough.json`.",
+ "flows": [
+  {
+   "id": "build",
+   "tab": "Build a page",
+   "method": "CLI",
+   "url": "build.py SPEC.json -o OUT.html",
+   "who": "Claude, after writing the spec · or you, by hand",
+   "lead": "The spec holds anchors and notes only. The script reads every referenced file from disk, asks git which lines changed, and writes one self-contained HTML page.",
+   "request": "{\n  \"flows\": [{\n    \"id\": \"build\",\n    \"panels\": [{\n      \"path\": \"…/build.py\",\n      \"notes\": [[\"def main():\", \"Entry point\", 1]]\n    }]\n  }]\n}",
+   "response": "wrote OUT.html (120 KB, 2 files)",
+   "alts": [
+    [
+     "exit 1",
+     "Every anchor that did not resolve, listed at once"
+    ],
+    [
+     "changed",
+     "Source files that changed since the previous build"
+    ]
+   ],
+   "actors": [
+    [
+     "cli",
+     "Shell",
+     "python3 build.py"
+    ],
+    [
+     "main",
+     "main()",
+     "reads the spec"
+    ],
+    [
+     "res",
+     "resolve_panel()",
+     "anchors → lines"
+    ],
+    [
+     "git",
+     "git",
+     "status · diff -U0"
+    ],
+    [
+     "out",
+     "OUT.html",
+     "page + manifest"
+    ]
+   ],
+   "msgs": [
+    [
+     "cli",
+     "main",
+     "SPEC.json",
+     "call",
+     1
+    ],
+    [
+     "main",
+     "res",
+     "each panel and model",
+     "call",
+     2
+    ],
+    [
+     "res",
+     "res",
+     "find anchor text in the file",
+     "call",
+     3
+    ],
+    [
+     "res",
+     "git",
+     "which lines changed?",
+     "call",
+     4
+    ],
+    [
+     "git",
+     "res",
+     "added lines · deletions",
+     "ret",
+     5
+    ],
+    [
+     "main",
+     "out",
+     "render tabs, diagrams, panels",
+     "call",
+     6
+    ]
+   ],
+   "panels": [
+    {
+     "path": "skills/code-walkthrough/scripts/build.py",
+     "role": "The whole renderer: one file, standard library only.",
+     "notes": [
+      [
+       "def main():",
+       "Entry point. Merges the built-in UI labels with the spec's own.",
+       1
+      ],
+      [
+       "def resolve_panel(p, spec, base_dir):",
+       "Reads a source file and turns each note's anchor into a line number.",
+       2
+      ],
+      [
+       "hits = [i + 1 for i, l in enumerate(src) if find in l]",
+       "A text anchor is a substring match; `[text, n]` picks the n-th hit.",
+       3
+      ],
+      [
+       "def file_diff(path, base):",
+       "Asks the file's own git repository, so a model class in a sibling repo gets its markers too.",
+       4
+      ],
+      [
+       "for m in re.finditer(r\"^@@",
+       "Hunk headers alone give the added lines and where lines were deleted.",
+       5,
+       3
+      ],
+      [
+       "def seq_svg(actors, msgs):",
+       "Draws the numbered sequence diagram from two short arrays."
+      ],
+      [
+       "out.write_text(page, encoding=\"utf-8\")",
+       "Writes the page, then a manifest of file hashes used to report changed sources next time.",
+       6,
+       3
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

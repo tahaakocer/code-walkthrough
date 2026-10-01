@@ -1,0 +1,19 @@
+{
+  "name": "code-walkthrough",
+  "description": "Explain a diff as a visual walkthrough page: request/response, a numbered call diagram and the full code with arrowed notes",
+  "version": "1.0.0",
+  "author": {
+    "name": "Taha Koçer",
+    "url": "https://github.com/tahaakocer"
+  },
+  "homepage": "https://github.com/tahaakocer/code-walkthrough",
+  "repository": "https://github.com/tahaakocer/code-walkthrough",
+  "license": "MIT",
+  "keywords": [
+    "diff",
+    "code-review",
+    "walkthrough",
+    "onboarding",
+    "artifact"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tahaakocer-plugins",
+  "description": "Claude Code plugins by Taha Koçer",
+  "owner": {
+    "name": "Taha Koçer",
+    "url": "https://github.com/tahaakocer"
+  },
+  "plugins": [
+    {
+      "name": "code-walkthrough",
+      "source": "./",
+      "description": "Explain a diff as a visual walkthrough page: request/response, a numbered call diagram and the full code with arrowed notes",
+      "author": {
+        "name": "Taha Koçer",
+        "url": "https://github.com/tahaakocer"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/tahaakocer/code-walkthrough"
+    }
+  ]
+}
