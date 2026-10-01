@@ -159,6 +159,7 @@ svg text { font-family: var(--f-body); }
 .seq .ahc { fill: var(--flow); } .seq .ahr { fill: var(--muted); }
 .seq .msg { fill: none; }
 .ln.add .no { color: var(--add); box-shadow: inset -3px 0 0 var(--add); }
-.ln.del { border-bottom: 1px dashed var(--del); }
+.ln .no { position: relative; }
+.ln.del .no::after { content: ""; position: absolute; left: 6px; bottom: -4px; border: 4px solid transparent; border-left: 6px solid var(--del); }
 .toc a.m span { background: transparent; color: var(--flow); border: 1.5px solid var(--flow); min-width: 26px; }
 pre.mermaid { margin: 0; background: transparent; }

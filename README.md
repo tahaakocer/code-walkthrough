@@ -33,7 +33,7 @@ The page is written in the language you talk to Claude in.
 | **Call diagram** | A numbered sequence diagram; the numbers match the notes on the code below |
 | **Full code, in call order** | Every class the flow touches, complete, with notes tied to their lines by arrows |
 | **Model classes** | The request, response and entity classes the flow carries — also from a sibling repo or library |
-| **Diff markers** | Lines added or changed in the diff carry a green bar; a red dashed line marks deletions |
+| **Diff markers** | Lines added or changed in the diff carry a green bar; a small red triangle in the gutter marks where lines were deleted |
 | **Phone width** | Below 1000px the arrows give way to notes placed under their line |
 | **Themes** | Light and dark, following the viewer's setting |
 
