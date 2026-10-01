@@ -188,6 +188,113 @@
     });
   }, { passive: true });
 
+  // Go to definition: a call or type name whose declaration is on the page becomes a link.
+  const defs = Object.create(null);
+  const types = Object.create(null);
+  const add = (map, key, entry) => (map[key] = map[key] || []).push(entry);
+  document.querySelectorAll(".file").forEach((sec) => {
+    const tdef = sec.querySelector(".code > .ln [data-tdef]");
+    const cls = tdef ? tdef.dataset.tdef : "";
+    const flow = sec.closest(".flow").id.slice(5);
+    const file = sec.querySelector(".fname b").textContent;
+    sec.querySelectorAll(".code > .ln [data-def]").forEach((el) =>
+      add(defs, el.dataset.def, { el, cls, flow, file, sec }));
+    sec.querySelectorAll(".code > .ln [data-tdef]").forEach((el) =>
+      add(types, el.dataset.tdef, { el, cls: el.dataset.tdef, flow, file, sec }));
+  });
+  const fieldsOf = (sec) => {
+    if (!sec._fields) { try { sec._fields = JSON.parse(sec.dataset.fields || "{}"); } catch (e) { sec._fields = {}; } }
+    return sec._fields;
+  };
+  function candidates(el) {
+    const sec = el.closest(".file");
+    const here = sec.closest(".flow").id.slice(5);
+    let list, owner = null;
+    if (el.dataset.type) {
+      list = types[el.dataset.type] || [];
+    } else {
+      list = (defs[el.dataset.call] || []).filter((c) => c.el !== el);
+      const q = el.dataset.q;
+      const own = (sec.querySelector(".code > .ln [data-tdef]") || {}).dataset;
+      if (q === "" || q === "this") owner = own ? own.tdef : null;
+      else if (q && q !== "?") owner = /^[A-Z]/.test(q) ? q : fieldsOf(sec)[q] || null;
+      if (owner) {
+        const match = (c) => c.cls === owner || c.cls === owner + "Impl" || c.cls.startsWith(owner) || owner.startsWith(c.cls);
+        list = list.filter(match);  // known owner not on the page → no link
+      }
+    }
+    // One entry per class, preferring the copy in the current tab.
+    const byCls = Object.create(null);
+    list.forEach((c) => {
+      const k = c.cls + "|" + c.file;
+      if (!byCls[k] || (c.flow === here && byCls[k].flow !== here)) byCls[k] = c;
+    });
+    return Object.values(byCls);
+  }
+  document.querySelectorAll(".code > .ln [data-call], .code > .ln [data-type]").forEach((el) => {
+    if (candidates(el).length) el.classList.add("go");
+  });
+
+  const backBtn = document.querySelector(".goback");
+  const gopop = document.querySelector(".gopop");
+  const history_ = [];
+  function jump(c, from) {
+    gopop.hidden = true;
+    history_.push({ flow: document.querySelector(".flow:not([hidden])").id.slice(5), y: window.scrollY, from });
+    backBtn.hidden = false;
+    const visible = document.querySelector(".flow:not([hidden])").id.slice(5);
+    if (c.flow !== visible) show(c.flow, true);
+    requestAnimationFrame(() => {
+      const row = c.el.closest(".ln");
+      lockUntil = Date.now() + 1500;
+      row.scrollIntoView({ block: "center" });
+      row.classList.remove("flash");
+      void row.offsetWidth;
+      row.classList.add("flash");
+    });
+  }
+  document.addEventListener("click", (e) => {
+    const pick = e.target.closest(".gopop [data-i]");
+    if (pick) {
+      jump(gopop._list[Number(pick.dataset.i)], gopop._from);
+      return;
+    }
+    if (!e.target.closest(".gopop")) gopop.hidden = true;
+    const el = e.target.closest(".go");
+    if (!el || String(window.getSelection())) return;
+    const list = candidates(el);
+    if (list.length === 1) return jump(list[0], el);
+    gopop._list = list;
+    gopop._from = el;
+    gopop.innerHTML = `<div class="gopop-h">${gopop.dataset.title}</div>` + list.map((c, i) =>
+      `<button type="button" data-i="${i}"><b>${c.cls || c.file}</b>.${el.dataset.call || el.dataset.type}<span>${c.file}:${c.el.closest(".ln").dataset.n}</span></button>`).join("");
+    gopop.hidden = false;
+    const r = el.getBoundingClientRect();
+    gopop.style.left = Math.max(12, Math.min(r.left, window.innerWidth - gopop.offsetWidth - 12)) + "px";
+    gopop.style.top = Math.min(r.bottom + 6, window.innerHeight - gopop.offsetHeight - 12) + "px";
+  });
+  function back() {
+    const h = history_.pop();
+    if (!h) return;
+    if (document.querySelector(".flow:not([hidden])").id.slice(5) !== h.flow) show(h.flow, true);
+    requestAnimationFrame(() => {
+      lockUntil = Date.now() + 1500;
+      window.scrollTo(0, h.y);
+      if (h.from) {
+        const row = h.from.closest(".ln");
+        row.classList.remove("flash");
+        void row.offsetWidth;
+        row.classList.add("flash");
+      }
+    });
+    backBtn.hidden = !history_.length;
+  }
+  backBtn.addEventListener("click", back);
+  document.addEventListener("keydown", (e) => {
+    if (e.altKey && e.key === "ArrowLeft") { e.preventDefault(); back(); }
+    if (e.key === "Escape") gopop.hidden = true;
+  });
+
   const tabs = [...document.querySelectorAll(".tab")];
   function show(id, push) {
     tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.flow === id)));

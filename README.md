@@ -33,6 +33,7 @@ The page is written in the language you talk to Claude in.
 | **Call diagram** | A numbered sequence diagram; the numbers match the notes on the code below |
 | **Full code, in call order** | Every class the flow touches, complete, with notes tied to their lines by arrows |
 | **Execution order** | A rail on the right lists the steps in the order the code runs; click one to jump to its line, `‹ ›` or `n` / `p` to step through, and it follows along as you scroll |
+| **Go to definition** | Click a method call or a type name to jump to its declaration, even in another tab — the field's type picks the right class among same-named methods. `← Back` or Alt+← returns |
 | **Model classes** | The request, response and entity classes the flow carries — also from a sibling repo or library |
 | **Diff markers** | Lines added or changed in the diff carry a green bar; a small red triangle in the gutter marks deleted or replaced lines — hover it for the old version, click to open it inline |
 | **Phone width** | Below 1000px the arrows give way to notes placed under their line |

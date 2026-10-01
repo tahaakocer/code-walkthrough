@@ -221,3 +221,16 @@ pre.mermaid { margin: 0; background: transparent; }
 .rail ol > li, .rs ul li { min-width: 0; }
 .rs-a, .rs-w, .rs ul button { overflow-wrap: anywhere; }
 .rs ul button { width: 100%; }
+
+/* Go to definition */
+.code .go { cursor: pointer; border-radius: 2px; }
+.code .go:hover { text-decoration: underline; text-decoration-color: var(--ide-m); text-underline-offset: 3px; background: color-mix(in srgb, var(--ide-m) 14%, transparent); }
+.code [data-tdef], .code .m { scroll-margin-block: 40vh; }
+.goback { position: fixed; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 9; height: 40px; padding: 0 16px; border-radius: 999px; font: 600 14px var(--f-body); color: var(--ink); background: var(--panel); border: 1px solid var(--ide-m); box-shadow: 0 4px 16px rgb(0 0 0 / 0.18); cursor: pointer; }
+.goback:focus-visible { outline: 2px solid var(--ide-m); outline-offset: 2px; }
+.gopop { position: fixed; z-index: 31; min-width: 260px; max-width: min(520px, calc(100vw - 24px)); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.25); padding: 6px; display: grid; gap: 2px; }
+.gopop[hidden] { display: none; }
+.gopop-h { font: 600 11px var(--f-body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 4px 8px; }
+.gopop button { display: flex; justify-content: space-between; gap: 12px; text-align: left; background: none; border: 0; border-radius: 5px; padding: 6px 8px; font: 12.5px var(--f-mono); color: var(--ink); cursor: pointer; }
+.gopop button span { color: var(--muted); }
+.gopop button:hover, .gopop button:focus-visible { background: color-mix(in srgb, var(--ide-m) 14%, transparent); outline: none; }

@@ -37,6 +37,8 @@ LABELS = {
         "rail_hint": "Adıma tıkla, koda git. n / p ile adım adım ilerle.",
         "rail_toggle": "Akış",
         "rail_diagram": "sadece diyagramda",
+        "back": "Geri",
+        "go_choose": "Hangisine gidelim?",
         "legend": "Yeşil çizgili satırlar bu diffte eklendi ya da değişti. Satır numarasının yanındaki kırmızı üçgen, oradan satır silindiğini ya da değiştirildiğini gösterir: üzerine gelince eski hali görünür, tıklayınca kodun içinde açılır.",
         "before": "Önce",
         "after": "Sonra",
@@ -58,6 +60,8 @@ LABELS = {
         "rail_hint": "Click a step to jump to its code. n / p to step through.",
         "rail_toggle": "Flow",
         "rail_diagram": "diagram only",
+        "back": "Back",
+        "go_choose": "Go to which one?",
         "legend": "Lines with a green bar were added or changed in this diff. A small red triangle by the line number marks lines deleted or replaced there: hover it to see the old version, click it to open it inline.",
         "before": "Before",
         "after": "After",
@@ -116,6 +120,10 @@ METHOD_DECL = re.compile(
     r"^\s*(?:@\w+(?:\([^)]*\))?\s+)*(?:(?:public|protected|private|static|final|abstract|synchronized|default|"
     r"native|override|suspend|async|export|fun|def|function)\s+)*(?:<[^>]+>\s+)?[\w<>\[\], ?.]*?\b(\w+)\s*\("
 )
+TYPE_DECL = re.compile(r"\b(?:class|interface|record|enum|object)\s+([A-Z]\w*)")
+FIELD_TYPE = re.compile(
+    r"^\s*(?:(?:private|protected|public|static|final|volatile|transient)\s+)+([A-Z][\w.]*)(?:<[^;=]*>)?\s+(\w+)\s*[;=]"
+)
 NOT_DECL = re.compile(r"^\s*(?:return|if|for|while|switch|catch|throw|new|else|case|try|do)\b|^\s*[\w.]+\s*\(|=")
 
 
@@ -139,8 +147,12 @@ def hl_code(lines, token):
     out, in_block, doc = [], False, False
     for raw in lines:
         res, i = [], 0
+        td = TYPE_DECL.search(raw)
+        type_decl = td.group(1) if td and not raw.lstrip().startswith(("*", "//", "/*")) else None
         decl = METHOD_DECL.match(raw)
-        decl_name = decl.group(1) if decl and not NOT_DECL.match(raw) and decl.group(1) not in KW else None
+        decl_name = (
+            decl.group(1) if decl and not type_decl and not NOT_DECL.match(raw) and decl.group(1) not in KW else None
+        )
         if in_block:
             end = raw.find("*/")
             if end < 0:
@@ -189,7 +201,24 @@ def hl_code(lines, token):
                     cls = "f"
                 elif text[0].isupper():
                     cls = "t"
-            res.append(f'<span class="{cls}">{esc(text)}</span>' if cls else esc(text))
+            attr = ""
+            if kind == "word" and cls != "k":
+                after = raw[m.end():].lstrip()
+                before = raw[: m.start()].rstrip()
+                if cls == "m":
+                    attr = f' data-def="{text}"'
+                elif type_decl and text == type_decl:
+                    cls, attr, type_decl = "t", f' data-tdef="{text}"', None
+                elif text[0].isupper() and not text.isupper():
+                    attr = f' data-type="{text}"'
+                elif after.startswith("("):
+                    q = re.search(r"(\w+)\s*\.$", before)
+                    qual = q.group(1) if q else ("?" if before.endswith(".") else "")
+                    attr = f' data-call="{text}" data-q="{qual}"'
+            if attr:
+                res.append(f'<span class="{cls or ""}"{attr}>{esc(text)}</span>')
+            else:
+                res.append(f'<span class="{cls}">{esc(text)}</span>' if cls else esc(text))
             i = m.end()
         out.append("".join(res))
     return out
@@ -308,6 +337,7 @@ def resolve_panel(p, spec, base_dir):
         "old_lines": {k: highlight(path, v) for k, v in deleted.items()},
         "notes": notes,
         "lib": p.get("libLabel"),
+        "fields": {m.group(2): m.group(1).split(".")[-1] for m in map(FIELD_TYPE.match, src) if m},
     }
 
 
@@ -364,7 +394,7 @@ def render_panel(p, anchor_id, ordinal, L):
     st_text = p["lib"] if st == "lib" else L.get({"new": "new", "modified": "modified"}.get(st, "unchanged"))
     st_cls = {"new": "new", "modified": "mod"}.get(st, "lib")
     return f"""
-<section class="file" id="{anchor_id}">
+<section class="file" id="{anchor_id}" data-fields="{html.escape(json.dumps(p["fields"]), quote=True)}">
   <header class="file-head">
     <span class="ord">{ordinal}</span>
     <div class="fh-text">
@@ -605,6 +635,8 @@ def main():
   </header>
   <nav class="tabs" role="tablist">{tabs}</nav>
   <button type="button" class="rail-toggle" aria-expanded="false">{esc(L["rail_toggle"])}</button>
+  <button type="button" class="goback" hidden>← {esc(L["back"])}</button>
+  <div class="gopop" hidden data-title="{esc(L["go_choose"])}"></div>
   {body}
 </div>
 <script>{js}</script>
