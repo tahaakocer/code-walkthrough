@@ -23,7 +23,7 @@ The scripts sit next to this file. Derive their path from here rather than assum
 Write every note, heading and summary **in the language the user speaks to you**, and set `"lang"`
 to its code. UI labels are built in for `tr` and `en`; for any other language pass `"labels"` with
 all of: `request response behind behind_hint read_code models models_hint new modified unchanged
-deleted_lines legend before after`.
+deleted_lines legend before after old_version rail_title rail_hint rail_toggle rail_diagram`.
 
 ## Saving tokens — hard rules
 

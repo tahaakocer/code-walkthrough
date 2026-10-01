@@ -32,8 +32,9 @@ The page is written in the language you talk to Claude in.
 | **Request → response** | An example request, the normal answer, and the alternative outcomes (skipped, 422, 503 …) |
 | **Call diagram** | A numbered sequence diagram; the numbers match the notes on the code below |
 | **Full code, in call order** | Every class the flow touches, complete, with notes tied to their lines by arrows |
+| **Execution order** | A rail on the right lists the steps in the order the code runs; click one to jump to its line, `‹ ›` or `n` / `p` to step through, and it follows along as you scroll |
 | **Model classes** | The request, response and entity classes the flow carries — also from a sibling repo or library |
-| **Diff markers** | Lines added or changed in the diff carry a green bar; a small red triangle in the gutter marks where lines were deleted |
+| **Diff markers** | Lines added or changed in the diff carry a green bar; a small red triangle in the gutter marks deleted or replaced lines — hover it for the old version, click to open it inline |
 | **Phone width** | Below 1000px the arrows give way to notes placed under their line |
 | **Themes** | Light and dark, following the viewer's setting |
 
@@ -103,7 +104,7 @@ The full schema is in [`SKILL.md`](skills/code-walkthrough/SKILL.md). The short 
 }
 ```
 
-Highlighting covers Java, Kotlin, JavaScript/TypeScript, Python, YAML/properties and HTML/XML well
+Code is coloured like IntelliJ IDEA (Dark and Light, following the viewer's theme): keywords, annotations, Javadoc tags, fields and constants, static calls in italics, method declarations. Highlighting covers Java, Kotlin, JavaScript/TypeScript, Python, YAML/properties and HTML/XML well
 enough to read; anything else still renders, just plainer.
 
 ## Customising the look

@@ -122,10 +122,10 @@
        4
       ],
       [
-       "for m in re.finditer(r\"^@@",
-       "Hunk headers alone give the added lines and where lines were deleted.",
+       "m = re.match(r\"@@",
+       "Walks the `-U0` diff: hunk headers give the added lines, `-` lines keep the old text for the hover preview.",
        5,
-       3
+       9
       ],
       [
        "def seq_svg(actors, msgs):",
